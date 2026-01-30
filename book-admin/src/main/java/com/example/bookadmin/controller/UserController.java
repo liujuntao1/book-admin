@@ -2,7 +2,7 @@ package com.example.bookadmin.controller;
 
 import cn.dev33.satoken.stp.StpUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.example.bookadmin.common.R;
+import com.example.bookadmin.common.CommonResult;
 import com.example.bookadmin.controller.dto.MenuDTO;
 import com.example.bookadmin.controller.dto.UpdatePwdDTO;
 import com.example.bookadmin.entity.Role;
@@ -44,10 +44,10 @@ public class UserController {
      */
     @Operation(summary = "获取用户列表")
     @GetMapping
-    public R<?> list(@RequestParam(defaultValue = "1") Integer page,
-                     @RequestParam(defaultValue = "10") Integer size) {
+    public CommonResult<?> list(@RequestParam(defaultValue = "1") Integer page,
+                                @RequestParam(defaultValue = "10") Integer size) {
         Page<User> pageData = userService.page(Page.of(page, size));
-        return R.success(pageData);
+        return CommonResult.success(pageData);
     }
 
     /**
@@ -55,9 +55,9 @@ public class UserController {
      */
     @Operation(summary = "获取用户详情")
     @GetMapping("/{id}")
-    public R<User> getById(@PathVariable Long id) {
+    public CommonResult<User> getById(@PathVariable Long id) {
         User user = userService.getById(id);
-        return user != null ? R.success(user) : R.fail("用户不存在");
+        return user != null ? CommonResult.success(user) : CommonResult.fail("用户不存在");
     }
 
     /**
@@ -65,9 +65,9 @@ public class UserController {
      */
     @Operation(summary = "创建用户")
     @PostMapping
-    public R<Boolean> create(@RequestBody @Valid User user) {
+    public CommonResult<Boolean> create(@RequestBody @Valid User user) {
         user.setPassword("123456");
-        return R.success(userService.save(user));
+        return CommonResult.success(userService.save(user));
     }
 
     /**
@@ -75,9 +75,9 @@ public class UserController {
      */
     @Operation(summary = "修改用户")
     @PutMapping
-    public R<Boolean> update(@RequestBody @Valid User user) {
-        if (user.getId() == null) return R.fail("ID不能为空");
-        return R.success(userService.updateById(user));
+    public CommonResult<Boolean> update(@RequestBody @Valid User user) {
+        if (user.getId() == null) return CommonResult.fail("ID不能为空");
+        return CommonResult.success(userService.updateById(user));
     }
 
     /**
@@ -85,8 +85,8 @@ public class UserController {
      */
     @Operation(summary = "删除用户")
     @DeleteMapping("/{id}")
-    public R<Boolean> delete(@PathVariable Long id) {
-        return R.success(userService.removeById(id));
+    public CommonResult<Boolean> delete(@PathVariable Long id) {
+        return CommonResult.success(userService.removeById(id));
     }
 
     /**
@@ -94,27 +94,27 @@ public class UserController {
      */
     @Operation(summary = "修改密码")
     @PostMapping("/updatePwd")
-    public R<Boolean> updatePwd(@RequestBody UpdatePwdDTO updatePwdDTO) {
+    public CommonResult<Boolean> updatePwd(@RequestBody UpdatePwdDTO updatePwdDTO) {
         User user = userService.getById(updatePwdDTO.getUserId());
         if (null == user) {
-            R.fail("未找到用户信息");
+            CommonResult.fail("未找到用户信息");
         }
         if (StringUtils.isBlank(updatePwdDTO.getOldPassword())) {
-            R.fail("旧密码不能为空");
+            CommonResult.fail("旧密码不能为空");
         }
         if (StringUtils.isBlank(updatePwdDTO.getNewPassword())) {
-            R.fail("新密码不能为空");
+            CommonResult.fail("新密码不能为空");
         }
 
         if (updatePwdDTO.getNewPassword().equals(updatePwdDTO.getOldPassword())) {
-            R.fail("新旧密码不能一致");
+            CommonResult.fail("新旧密码不能一致");
         }
         if (!user.getPassword().equals(updatePwdDTO.getOldPassword())) {
-            R.fail("旧密码错误");
+            CommonResult.fail("旧密码错误");
         }
         user.setPassword(updatePwdDTO.getNewPassword());
         user.setUpdateTime(LocalDateTime.now());
-        return R.success(userService.updateById(user));
+        return CommonResult.success(userService.updateById(user));
     }
 
 
@@ -123,7 +123,7 @@ public class UserController {
      */
     @Operation(summary = "是否已登录")
     @GetMapping("/getLoginUserInfo")
-    public R getLoginUserInfo() {
+    public CommonResult getLoginUserInfo() {
         long userId = StpUtil.getLoginIdAsLong();
         // 获取角色列表
         User user = userService.getById(userId);
@@ -137,7 +137,7 @@ public class UserController {
         data.put("roleIds", roleIds);
         data.put("roles", roles);
         data.put("menus", currentUserMenus);
-        return R.success(data);
+        return CommonResult.success(data);
     }
 
 }

@@ -1,7 +1,7 @@
 package com.example.bookadmin.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.example.bookadmin.common.R;
+import com.example.bookadmin.common.CommonResult;
 import com.example.bookadmin.controller.query.SysLogQuery;
 import com.example.bookadmin.entity.SysLog;
 import com.example.bookadmin.service.SysLogService;
@@ -16,7 +16,7 @@ public class SysLogController {
     private SysLogService sysLogService;
 
     @PostMapping("/page")
-    public R<IPage<SysLog>> getLogPage(@RequestBody(required = false) SysLogQuery query) {
-        return R.success(sysLogService.getLogPage(query));
+    public CommonResult<IPage<SysLog>> getLogPage(@RequestBody(required = false) SysLogQuery query) {
+        return CommonResult.success(sysLogService.getLogPage(query));
     }
 }

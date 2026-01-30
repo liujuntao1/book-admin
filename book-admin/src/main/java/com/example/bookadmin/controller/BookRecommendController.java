@@ -2,7 +2,7 @@ package com.example.bookadmin.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.example.bookadmin.common.R;
+import com.example.bookadmin.common.CommonResult;
 import com.example.bookadmin.controller.dto.BookRecommendDTO;
 import com.example.bookadmin.entity.Book;
 import com.example.bookadmin.entity.BookRecommend;
@@ -26,9 +26,9 @@ public class BookRecommendController {
 
     // 列表
     @GetMapping
-    public R<Page<BookRecommendDTO>> list(@RequestParam(required = false, defaultValue = "1") Integer page,
-                                          @RequestParam(required = false, defaultValue = "10") Integer size,
-                                          @RequestParam(required = false) Integer type) {
+    public CommonResult<Page<BookRecommendDTO>> list(@RequestParam(required = false, defaultValue = "1") Integer page,
+                                                     @RequestParam(required = false, defaultValue = "10") Integer size,
+                                                     @RequestParam(required = false) Integer type) {
         QueryWrapper<BookRecommend> wrapper = new QueryWrapper<>();
         if (type != null) {
             wrapper.eq("type", type);
@@ -51,24 +51,24 @@ public class BookRecommendController {
             bookRecommendDTOS.add(bookRecommendDTO);
         }
         bookRecommendDTOPage.setRecords(bookRecommendDTOS);
-        return R.success(bookRecommendDTOPage);
+        return CommonResult.success(bookRecommendDTOPage);
     }
 
     // 新增
     @PostMapping
-    public R add(@RequestBody BookRecommend recommend) {
-        return R.success(recommendService.save(recommend));
+    public CommonResult add(@RequestBody BookRecommend recommend) {
+        return CommonResult.success(recommendService.save(recommend));
     }
 
     // 修改
     @PutMapping
-    public R update(@RequestBody BookRecommend recommend) {
-        return R.success(recommendService.updateById(recommend));
+    public CommonResult update(@RequestBody BookRecommend recommend) {
+        return CommonResult.success(recommendService.updateById(recommend));
     }
 
     // 删除
     @DeleteMapping("/{id}")
-    public R delete(@PathVariable Long id) {
-        return R.success(recommendService.removeById(id));
+    public CommonResult delete(@PathVariable Long id) {
+        return CommonResult.success(recommendService.removeById(id));
     }
 }

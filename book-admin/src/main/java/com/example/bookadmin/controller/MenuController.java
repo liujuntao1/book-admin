@@ -1,6 +1,6 @@
 package com.example.bookadmin.controller;
 
-import com.example.bookadmin.common.R;
+import com.example.bookadmin.common.CommonResult;
 import com.example.bookadmin.controller.dto.MenuDTO;
 import com.example.bookadmin.entity.Menu;
 import com.example.bookadmin.service.MenuService;
@@ -18,33 +18,33 @@ public class MenuController {
 
     // 获取菜单树
     @GetMapping("/tree")
-    public R<List<MenuDTO>> getMenuTree() {
+    public CommonResult<List<MenuDTO>> getMenuTree() {
         List<MenuDTO> menuDTOs = menuService.getMenuTree();
-        return R.success(menuDTOs); // 返回 MenuDTO 类型的树形结构
+        return CommonResult.success(menuDTOs); // 返回 MenuDTO 类型的树形结构
     }
 
     // 添加菜单
     @PostMapping
-    public R<Menu> addMenu(@RequestBody Menu menu) {
+    public CommonResult<Menu> addMenu(@RequestBody Menu menu) {
         Menu createdMenu = menuService.addMenu(menu);
-        return R.success(createdMenu);
+        return CommonResult.success(createdMenu);
     }
 
     // 更新菜单
     @PutMapping
-    public R<Menu> updateMenu(@RequestBody Menu menu) {
+    public CommonResult<Menu> updateMenu(@RequestBody Menu menu) {
         Menu updatedMenu = menuService.updateMenu(menu);
-        return R.success(updatedMenu);
+        return CommonResult.success(updatedMenu);
     }
 
     // 删除菜单
     @DeleteMapping("/{id}")
-    public R<Void> deleteMenu(@PathVariable Long id) {
+    public CommonResult<Void> deleteMenu(@PathVariable Long id) {
         boolean success = menuService.deleteMenu(id);
         if (success) {
-            return R.success(null);
+            return CommonResult.success(null);
         }
-        return R.fail("删除失败");
+        return CommonResult.fail("删除失败");
     }
 
 

@@ -4,7 +4,7 @@ import cn.dev33.satoken.stp.StpUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.example.bookadmin.common.R;
+import com.example.bookadmin.common.CommonResult;
 import com.example.bookadmin.controller.dto.BookBorrowDTO;
 import com.example.bookadmin.controller.dto.BookPageListDTO;
 import com.example.bookadmin.controller.query.BookPageQuery;
@@ -40,7 +40,7 @@ public class BookController {
      * 查询图书列表（分页）
      */
     @PostMapping("pageList")
-    public R<?> pageList(@RequestBody BookPageQuery bookPageQuery) {
+    public CommonResult<?> pageList(@RequestBody BookPageQuery bookPageQuery) {
         QueryWrapper<Book> bookQueryWrapper = new QueryWrapper<>();
         if (StringUtils.isNotBlank(bookPageQuery.getTitle())) {
             bookQueryWrapper.like("title", bookPageQuery.getTitle());
@@ -83,9 +83,9 @@ public class BookController {
                 bookPageListDTOS.add(bookPageListDTO);
             }
             bookPageListDTOPage.setRecords(bookPageListDTOS);
-            return R.success(bookPageListDTOPage);
+            return CommonResult.success(bookPageListDTOPage);
         } else {
-            return R.success(pageData);
+            return CommonResult.success(pageData);
         }
     }
 
@@ -93,34 +93,34 @@ public class BookController {
      * 根据 ID 查询单本图书
      */
     @GetMapping("/{id}")
-    public R<?> get(@PathVariable Long id) {
-        return R.success(bookService.getById(id));
+    public CommonResult<?> get(@PathVariable Long id) {
+        return CommonResult.success(bookService.getById(id));
     }
 
     /**
      * 新增图书
      */
     @PostMapping
-    public R<?> add(@RequestBody Book book) {
+    public CommonResult<?> add(@RequestBody Book book) {
         book.setCreateTime(LocalDateTime.now());
-        return R.success(bookService.save(book));
+        return CommonResult.success(bookService.save(book));
     }
 
     /**
      * 修改图书
      */
     @PutMapping
-    public R<?> update(@RequestBody Book book) {
+    public CommonResult<?> update(@RequestBody Book book) {
         book.setUpdateTime(LocalDateTime.now());
-        return R.success(bookService.updateById(book));
+        return CommonResult.success(bookService.updateById(book));
     }
 
     /**
      * 删除图书
      */
     @DeleteMapping("/{id}")
-    public R<?> delete(@PathVariable Long id) {
-        return R.success(bookService.removeById(id));
+    public CommonResult<?> delete(@PathVariable Long id) {
+        return CommonResult.success(bookService.removeById(id));
     }
 
 
@@ -128,9 +128,9 @@ public class BookController {
      * 根据图书id查询借阅记录
      */
     @GetMapping("getBorrowListByBookId/{id}")
-    public R<?> getBorrowListByBookId(@PathVariable Long id,
-                                      @RequestParam(required = false, defaultValue = "1") Integer page,
-                                      @RequestParam(required = false, defaultValue = "10") Integer size) {
+    public CommonResult<?> getBorrowListByBookId(@PathVariable Long id,
+                                                 @RequestParam(required = false, defaultValue = "1") Integer page,
+                                                 @RequestParam(required = false, defaultValue = "10") Integer size) {
         Page<BookBorrow> bookBorrowPage = bookBorrowService.page(Page.of(page, size), new QueryWrapper<BookBorrow>().eq("book_id", id).orderByDesc("borrow_date"));
         Page<BookBorrowDTO> bookBorrowDTOPage = new Page<>();
         BeanUtils.copyProperties(bookBorrowPage, bookBorrowDTOPage);
@@ -149,6 +149,6 @@ public class BookController {
             bookBorrowDTOS.add(bookBorrowDTO);
         }
         bookBorrowDTOPage.setRecords(bookBorrowDTOS);
-        return R.success(bookBorrowDTOPage);
+        return CommonResult.success(bookBorrowDTOPage);
     }
 }

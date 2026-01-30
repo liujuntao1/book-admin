@@ -4,7 +4,7 @@ import cn.dev33.satoken.stp.StpUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.example.bookadmin.common.R;
+import com.example.bookadmin.common.CommonResult;
 import com.example.bookadmin.controller.dto.BookBorrowDTO;
 import com.example.bookadmin.controller.dto.BorrowAuditPageDTO;
 import com.example.bookadmin.entity.Book;
@@ -35,7 +35,7 @@ public class BookBorrowController {
     private UserService userService;
 
     @GetMapping("/list")
-    public R<Page<BookBorrowDTO>> list(@RequestParam int page, @RequestParam int size) {
+    public CommonResult<Page<BookBorrowDTO>> list(@RequestParam int page, @RequestParam int size) {
         Page<BookBorrow> paged = bookBorrowService.page(Page.of(page, size));
         Page<BookBorrowDTO> bookBorrowDTOPage = new Page<>();
         BeanUtils.copyProperties(paged, bookBorrowDTOPage);
@@ -54,12 +54,12 @@ public class BookBorrowController {
             bookBorrowDTOS.add(bookBorrowDTO);
         }
         bookBorrowDTOPage.setRecords(bookBorrowDTOS);
-        return R.success(bookBorrowDTOPage);
+        return CommonResult.success(bookBorrowDTOPage);
     }
 
     // 读者借书申请
     @PostMapping("/apply")
-    public R<String> applyForBookBorrow(@RequestBody BookBorrow request) {
+    public CommonResult<String> applyForBookBorrow(@RequestBody BookBorrow request) {
         // 获取图书信息
         Book book = bookService.getById(request.getBookId());
         QueryWrapper<BookBorrow> eq = new QueryWrapper<BookBorrow>()
@@ -68,15 +68,15 @@ public class BookBorrowController {
                 .in("status", Arrays.asList(0, 1));
         long count = bookBorrowService.count(eq);
         if (count > 0) {
-            return R.fail("不可重复申请");
+            return CommonResult.fail("不可重复申请");
         }
         if (book == null) {
-            return R.fail("图书不可借阅");
+            return CommonResult.fail("图书不可借阅");
         }
 
         // 判断库存
         if (book.getStock() <= 0) {
-            return R.fail("库存不足，无法借阅");
+            return CommonResult.fail("库存不足，无法借阅");
         }
 
         // 创建借阅申请
@@ -88,22 +88,22 @@ public class BookBorrowController {
 
         bookBorrowService.save(borrow);
 
-        return R.success("借阅申请已提交");
+        return CommonResult.success("借阅申请已提交");
     }
 
     // 审核借阅申请
     @PostMapping("/approve/{borrowId}")
-    public R<String> approveBorrowRequest(@PathVariable Long borrowId) {
+    public CommonResult<String> approveBorrowRequest(@PathVariable Long borrowId) {
         BookBorrow borrow = bookBorrowService.getById(borrowId);
 
         if (borrow == null || borrow.getStatus() != 0) {
-            return R.fail("借阅申请无效");
+            return CommonResult.fail("借阅申请无效");
         }
 
         // 更新借阅状态
         Book book = bookService.getById(borrow.getBookId());
         if (book.getStock() <= 0) {
-            return R.fail("库存不足，无法借阅");
+            return CommonResult.fail("库存不足，无法借阅");
         }
 
         book.setStock(book.getStock() - 1); // 减少库存
@@ -113,28 +113,28 @@ public class BookBorrowController {
         borrow.setApprovalDate(LocalDateTime.now());
         bookBorrowService.updateById(borrow);
 
-        return R.success("借阅申请已批准");
+        return CommonResult.success("借阅申请已批准");
     }
 
     // 拒绝借阅申请
     @PostMapping("/reject/{borrowId}")
-    public R<String> rejectBorrowRequest(@PathVariable Long borrowId, @RequestParam String reason) {
+    public CommonResult<String> rejectBorrowRequest(@PathVariable Long borrowId, @RequestParam String reason) {
         BookBorrow borrow = bookBorrowService.getById(borrowId);
 
         if (borrow == null || borrow.getStatus() != 0) {
-            return R.fail("借阅申请无效");
+            return CommonResult.fail("借阅申请无效");
         }
 
         borrow.setStatus(2); // 状态：已拒绝
         borrow.setRejectionReason(reason); // 拒绝理由
         bookBorrowService.updateById(borrow);
 
-        return R.success("借阅申请已拒绝");
+        return CommonResult.success("借阅申请已拒绝");
     }
 
 
     @GetMapping("/auditList")
-    public R<Page<BorrowAuditPageDTO>> auditList(@RequestParam int page, @RequestParam int size, @RequestParam int status) {
+    public CommonResult<Page<BorrowAuditPageDTO>> auditList(@RequestParam int page, @RequestParam int size, @RequestParam int status) {
         LambdaQueryWrapper<BookBorrow> queryWrapper = new LambdaQueryWrapper<>();
         if (status == 1) {
             queryWrapper.in(BookBorrow::getStatus, Arrays.asList(1, 3));
@@ -159,12 +159,12 @@ public class BookBorrowController {
             borrowAuditPageDTOS.add(borrowAuditPageDTO);
         }
         borrowAuditPageDTOPage.setRecords(borrowAuditPageDTOS);
-        return R.success(borrowAuditPageDTOPage);
+        return CommonResult.success(borrowAuditPageDTOPage);
     }
 
 
     @GetMapping("/borrowList")
-    public R<Page<BorrowAuditPageDTO>> borrowList(@RequestParam int page, @RequestParam int size) {
+    public CommonResult<Page<BorrowAuditPageDTO>> borrowList(@RequestParam int page, @RequestParam int size) {
         Long userId = StpUtil.getLoginIdAsLong();
         LambdaQueryWrapper<BookBorrow> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(BookBorrow::getUserId, userId);
@@ -186,14 +186,14 @@ public class BookBorrowController {
             borrowAuditPageDTOS.add(borrowAuditPageDTO);
         }
         borrowAuditPageDTOPage.setRecords(borrowAuditPageDTOS);
-        return R.success(borrowAuditPageDTOPage);
+        return CommonResult.success(borrowAuditPageDTOPage);
     }
 
     @PostMapping("/return/{borrowId}")
-    public R<String> returnBook(@PathVariable Long borrowId) {
+    public CommonResult<String> returnBook(@PathVariable Long borrowId) {
         BookBorrow borrow = bookBorrowService.getById(borrowId);
         if (borrow == null || borrow.getStatus() != 1) {
-            return R.fail("还书失败，借阅记录不存在或状态不正确");
+            return CommonResult.fail("还书失败，借阅记录不存在或状态不正确");
         }
 
         // 更新图书库存
@@ -206,7 +206,7 @@ public class BookBorrowController {
         borrow.setReturnDate(LocalDateTime.now());
         bookBorrowService.updateById(borrow);
 
-        return R.success("归还成功");
+        return CommonResult.success("归还成功");
     }
 
 
@@ -218,12 +218,12 @@ public class BookBorrowController {
      * @return
      */
     @GetMapping("isBeingBorrowed")
-    public R isBeingBorrowed(@RequestParam String bookId, @RequestParam String userId) {
+    public CommonResult isBeingBorrowed(@RequestParam String bookId, @RequestParam String userId) {
         QueryWrapper<BookBorrow> eq = new QueryWrapper<BookBorrow>()
                 .eq("book_id", bookId)
                 .eq("user_id", userId)
                 .in("status", Arrays.asList(0, 1));
         long count = bookBorrowService.count(eq);
-        return R.success(count > 0);
+        return CommonResult.success(count > 0);
     }
 }

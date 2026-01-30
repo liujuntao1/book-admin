@@ -3,7 +3,7 @@ package com.example.bookadmin.config.aspect;
 import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.extra.servlet.JakartaServletUtil;
 import com.alibaba.fastjson.JSON;
-import com.example.bookadmin.common.R;
+import com.example.bookadmin.common.CommonResult;
 import com.example.bookadmin.entity.SysLog;
 import com.example.bookadmin.entity.User;
 import com.example.bookadmin.service.SysLogService;
@@ -62,7 +62,7 @@ public class LogAspect {
         }
         logEntry.setParams(JSON.toJSONString(point.getArgs()));
         try {
-            R result = (R) point.proceed();
+            CommonResult result = (CommonResult) point.proceed();
             Map<String, Object> resultMap = new HashMap<>();
             resultMap.put("code", result.getCode());
             resultMap.put("msg", result.getMsg());
