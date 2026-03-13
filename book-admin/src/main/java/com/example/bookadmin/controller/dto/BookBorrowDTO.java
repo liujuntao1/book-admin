@@ -14,4 +14,5 @@ public class BookBorrowDTO {
     private LocalDateTime borrowDate;
     private LocalDateTime returnDate;
     private String rejectionReason;
+    private String rejectionReason2;
 }
